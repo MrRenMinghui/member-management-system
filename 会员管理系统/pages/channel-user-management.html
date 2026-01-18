@@ -1,0 +1,753 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>渠道管理 - 会员商城管理系统</title>
+    <link rel="stylesheet" href="../css/styles.css">
+    <style>
+        /* Tab样式 */
+        .tab-container {
+            margin-bottom: 24px;
+        }
+
+        .tab-header {
+            display: flex;
+            border-bottom: 2px solid #f0f0f0;
+        }
+
+        .tab-item {
+            padding: 12px 24px;
+            font-size: 14px;
+            font-weight: 500;
+            color: #666;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            transition: all 0.3s;
+            margin-bottom: -2px;
+        }
+
+        .tab-item:hover {
+            color: #1890ff;
+        }
+
+        .tab-item.active {
+            color: #1890ff;
+            border-bottom-color: #1890ff;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* 筛选栏样式 */
+        .filter-bar {
+            display: flex;
+            gap: 16px;
+            align-items: center;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+        }
+
+        .filter-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .filter-item label {
+            font-size: 14px;
+            color: #666;
+            font-weight: 500;
+        }
+
+        .filter-input {
+            padding: 6px 12px;
+            border: 1px solid #d9d9d9;
+            border-radius: 4px;
+            font-size: 14px;
+            min-width: 150px;
+        }
+
+        .filter-input:focus {
+            outline: none;
+            border-color: #1890ff;
+            box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.2);
+        }
+
+        /* 表格样式 */
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: #fff;
+        }
+
+        .data-table th,
+        .data-table td {
+            padding: 12px 16px;
+            text-align: left;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .data-table th {
+            background: #fafafa;
+            font-weight: 600;
+            color: #333;
+            white-space: nowrap;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .data-table th:hover {
+            background: #f0f0f0;
+        }
+
+        .data-table th .sort-icon {
+            margin-left: 4px;
+            color: #999;
+        }
+
+        .data-table th .sort-icon.active {
+            color: #1890ff;
+        }
+
+        .data-table tbody tr:hover {
+            background: #f5f5f5;
+        }
+
+        /* 分页样式 */
+        .pagination {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 16px;
+            padding: 12px;
+            background: #fafafa;
+            border-radius: 4px;
+        }
+
+        .pagination-info {
+            font-size: 14px;
+            color: #666;
+        }
+
+        .pagination-controls {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .page-size-select {
+            padding: 4px 8px;
+            border: 1px solid #d9d9d9;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        /* 状态标签样式 */
+        .status-tag {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 2px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .status-tag.yes {
+            background: #f6ffed;
+            color: #52c41a;
+            border: 1px solid #b7eb8f;
+        }
+
+        .status-tag.no {
+            background: #fff2f0;
+            color: #ff4d4f;
+            border: 1px solid #ffccc7;
+        }
+
+        /* 图表容器样式 */
+        .chart-container {
+            height: 300px;
+            background: #fff;
+            border-radius: 4px;
+            margin-bottom: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #999;
+        }
+
+        /* 列设置按钮 */
+        .column-settings {
+            margin-bottom: 16px;
+            display: flex;
+            gap: 8px;
+        }
+
+        .column-settings-btn {
+            padding: 6px 12px;
+            background: #fff;
+            border: 1px solid #d9d9d9;
+            border-radius: 4px;
+            font-size: 14px;
+            color: #666;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .column-settings-btn:hover {
+            border-color: #1890ff;
+            color: #1890ff;
+        }
+
+        /* 多选下拉框样式 */
+        .multiselect {
+            min-width: 200px;
+        }
+
+        .multiselect-dropdown {
+            padding: 6px 12px;
+            border: 1px solid #d9d9d9;
+            border-radius: 4px;
+            font-size: 14px;
+            cursor: pointer;
+            background: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .multiselect-dropdown:hover {
+            border-color: #1890ff;
+        }
+
+        .multiselect-options {
+            display: none;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: #fff;
+            border: 1px solid #d9d9d9;
+            border-radius: 4px;
+            max-height: 200px;
+            overflow-y: auto;
+            z-index: 1000;
+            margin-top: 4px;
+        }
+
+        .multiselect-options.show {
+            display: block;
+        }
+
+        .multiselect-option {
+            padding: 8px 12px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .multiselect-option:hover {
+            background: #f5f5f5;
+        }
+
+        .multiselect-option.selected {
+            background: #e6f7ff;
+            color: #1890ff;
+        }
+
+        .multiselect-option input {
+            margin-right: 8px;
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .filter-bar {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .filter-item {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .filter-input {
+                width: 100%;
+            }
+
+            .data-table {
+                display: block;
+                overflow-x: auto;
+            }
+
+            .pagination {
+                flex-direction: column;
+                gap: 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <aside class="sider">
+            <div class="logo">
+                <h1>会员商城管理</h1>
+            </div>
+            <nav class="menu">
+                <div class="menu-item" onclick="navigateTo('user-management')">
+                    <span>👥</span>
+                    <span>用户会员管理</span>
+                </div>
+                <div class="menu-item" onclick="navigateTo('data-stats')">
+                    <span>📊</span>
+                    <span>业务数据统计</span>
+                </div>
+                <div class="menu-item active" onclick="navigateTo('channel-user-management')">
+                    <span>🌐</span>
+                    <span>渠道管理</span>
+                </div>
+            </nav>
+        </aside>
+
+        <main class="main">
+            <header class="header">
+                <div class="header-left">
+                    <div class="breadcrumb">渠道会员管理</div>
+                </div>
+                <div class="user-info">
+                    <div class="user-avatar">AD</div>
+                    <span>管理员</span>
+                </div>
+            </header>
+
+            <div class="content">
+                <!-- Tab切换 -->
+                <div class="tab-container">
+                    <div class="tab-header">
+                        <div class="tab-item active" onclick="switchTab('channel-users')">渠道用户</div>
+                        <div class="tab-item" onclick="switchTab('channel-stats')">渠道统计</div>
+                    </div>
+
+                    <!-- 渠道用户页 -->
+                    <div class="tab-content active" id="channel-users-tab">
+                        <!-- 筛选栏 -->
+                        <div class="card" style="margin-bottom: 24px;">
+                            <div class="card-body">
+                                <div class="filter-bar">
+                                    <div class="filter-item">
+                                        <label>渠道名称</label>
+                                        <select id="channel-filter-users" class="filter-input">
+                                            <option value="all">全渠道</option>
+                                            <option value="official">官方网站</option>
+                                            <option value="wechat">微信公众号</option>
+                                            <option value="app">移动端APP</option>
+                                            <option value="h5">H5页面</option>
+                                        </select>
+                                    </div>
+                                    <div class="filter-item">
+                                        <label>统计日期</label>
+                                        <input type="date" id="start-date-users" class="filter-input" value="2024-01-01">
+                                        <span style="color: #999;">至</span>
+                                        <input type="date" id="end-date-users" class="filter-input" value="2024-01-15">
+                                    </div>
+                                    <div class="filter-item">
+                                        <button class="btn btn-primary" onclick="queryChannelUsers()">查询</button>
+                                        <button class="btn btn-default" onclick="resetChannelUsersFilter()">重置</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+
+
+                        <!-- 用户列表 -->
+                        <div class="card">
+                            <div class="card-body">
+                                <table class="data-table">
+                                    <thead>
+                                        <tr>
+                                            <th>
+                                                注册时间
+                                                <span class="sort-icon active">▼</span>
+                                            </th>
+                                            <th>所属渠道</th>
+                                            <th>用户姓名</th>
+                                            <th>手机号</th>
+                                            <th>是否实名</th>
+                                            <th>是否完成绑卡扣费</th>
+                                            <th>是否退费</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="users-table-body">
+                                        <tr>
+                                            <td>2024-01-15 14:30:25</td>
+                                            <td>官方网站</td>
+                                            <td>张三</td>
+                                            <td>138****5678</td>
+                                            <td><span class="status-tag yes">是</span></td>
+                                            <td><span class="status-tag yes">是</span></td>
+                                            <td><span class="status-tag no">否</span></td>
+                                        </tr>
+                                        <tr>
+                                            <td>2024-01-15 10:25:18</td>
+                                            <td>微信公众号</td>
+                                            <td>李四</td>
+                                            <td>139****8765</td>
+                                            <td><span class="status-tag yes">是</span></td>
+                                            <td><span class="status-tag yes">是</span></td>
+                                            <td><span class="status-tag no">否</span></td>
+                                        </tr>
+                                        <tr>
+                                            <td>2024-01-14 16:45:32</td>
+                                            <td>移动端APP</td>
+                                            <td>王五</td>
+                                            <td>137****4321</td>
+                                            <td><span class="status-tag yes">是</span></td>
+                                            <td><span class="status-tag no">否</span></td>
+                                            <td><span class="status-tag no">否</span></td>
+                                        </tr>
+                                        <tr>
+                                            <td>2024-01-14 09:15:47</td>
+                                            <td>H5页面</td>
+                                            <td>赵六</td>
+                                            <td>136****2345</td>
+                                            <td><span class="status-tag yes">是</span></td>
+                                            <td><span class="status-tag yes">是</span></td>
+                                            <td><span class="status-tag yes">是</span></td>
+                                        </tr>
+                                        <tr>
+                                            <td>2024-01-13 11:30:55</td>
+                                            <td>官方网站</td>
+                                            <td>孙七</td>
+                                            <td>135****6789</td>
+                                            <td><span class="status-tag yes">是</span></td>
+                                            <td><span class="status-tag yes">是</span></td>
+                                            <td><span class="status-tag no">否</span></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+
+                                <!-- 分页 -->
+                                <div class="pagination">
+                                    <div class="pagination-info">共 100 条记录，当前显示第 1-5 条</div>
+                                    <div class="pagination-controls">
+                                        <button class="btn btn-sm btn-default" onclick="prevPage('users')">上一页</button>
+                                        <button class="btn btn-sm btn-default" onclick="nextPage('users')">下一页</button>
+                                        <span style="margin-left: 16px; color: #666;">每页显示</span>
+                                        <select class="page-size-select" onchange="changePageSize('users', this.value)">
+                                            <option value="10">10条</option>
+                                            <option value="20">20条</option>
+                                            <option value="50">50条</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 渠道统计页 -->
+                    <div class="tab-content" id="channel-stats-tab">
+                        <!-- 筛选栏 -->
+                        <div class="card" style="margin-bottom: 24px;">
+                            <div class="card-body">
+                                <div class="filter-bar">
+                                    <div class="filter-item" style="position: relative;">
+                                        <label>渠道名称</label>
+                                        <div class="multiselect">
+                                            <div class="multiselect-dropdown" onclick="toggleMultiselect('channels')">
+                                                <span id="channels-display">全渠道</span>
+                                                <span>▼</span>
+                                            </div>
+                                            <div class="multiselect-options" id="channels-options">
+                                                <div class="multiselect-option selected">
+                                                    <input type="checkbox" id="channel-all" checked onchange="toggleChannelSelect('all')">
+                                                    <label for="channel-all">全渠道</label>
+                                                </div>
+                                                <div class="multiselect-option">
+                                                    <input type="checkbox" id="channel-official" onchange="toggleChannelSelect('official')">
+                                                    <label for="channel-official">官方网站</label>
+                                                </div>
+                                                <div class="multiselect-option">
+                                                    <input type="checkbox" id="channel-wechat" onchange="toggleChannelSelect('wechat')">
+                                                    <label for="channel-wechat">微信公众号</label>
+                                                </div>
+                                                <div class="multiselect-option">
+                                                    <input type="checkbox" id="channel-app" onchange="toggleChannelSelect('app')">
+                                                    <label for="channel-app">移动端APP</label>
+                                                </div>
+                                                <div class="multiselect-option">
+                                                    <input type="checkbox" id="channel-h5" onchange="toggleChannelSelect('h5')">
+                                                    <label for="channel-h5">H5页面</label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="filter-item">
+                                        <label>统计日期</label>
+                                        <input type="date" id="start-date-stats" class="filter-input" value="2024-01-01">
+                                        <span style="color: #999;">至</span>
+                                        <input type="date" id="end-date-stats" class="filter-input" value="2024-01-15">
+                                    </div>
+                                    <div class="filter-item">
+                                        <button class="btn btn-primary" onclick="queryChannelStats()">查询</button>
+                                        <button class="btn btn-default" onclick="resetChannelStatsFilter()">重置</button>
+
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+
+
+                        <!-- 统计列表 -->
+                        <div class="card">
+                            <div class="card-body">
+                                <table class="data-table">
+                                    <thead>
+                                        <tr>
+                                            <th>日期</th>
+                                            <th>渠道名称</th>
+                                            <th>PV</th>
+                                            <th>UV</th>
+                                            <th>AV</th>
+                                            <th>实名</th>
+                                            <th>绑卡</th>
+                                            <th>开通会员</th>
+                                            <th>会员退费</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="stats-table-body">
+                                        <tr>
+                                            <td>2024-01-15</td>
+                                            <td>官方网站</td>
+                                            <td>12,568</td>
+                                            <td>3,421</td>
+                                            <td>3.4</td>
+                                            <td>568</td>
+                                            <td>432</td>
+                                            <td>156</td>
+                                            <td>12</td>
+                                        </tr>
+                                        <tr>
+                                            <td>2024-01-15</td>
+                                            <td>微信公众号</td>
+                                            <td>8,923</td>
+                                            <td>2,567</td>
+                                            <td>2.8</td>
+                                            <td>345</td>
+                                            <td>289</td>
+                                            <td>98</td>
+                                            <td>8</td>
+                                        </tr>
+                                        <tr>
+                                            <td>2024-01-14</td>
+                                            <td>官方网站</td>
+                                            <td>10,912</td>
+                                            <td>3,034</td>
+                                            <td>3.2</td>
+                                            <td>462</td>
+                                            <td>364</td>
+                                            <td>118</td>
+                                            <td>10</td>
+                                        </tr>
+                                        <tr>
+                                            <td>2024-01-14</td>
+                                            <td>微信公众号</td>
+                                            <td>7,892</td>
+                                            <td>2,234</td>
+                                            <td>2.5</td>
+                                            <td>289</td>
+                                            <td>221</td>
+                                            <td>76</td>
+                                            <td>6</td>
+                                        </tr>
+                                        <tr>
+                                            <td>2024-01-13</td>
+                                            <td>官方网站</td>
+                                            <td>11,234</td>
+                                            <td>3,123</td>
+                                            <td>3.5</td>
+                                            <td>489</td>
+                                            <td>387</td>
+                                            <td>124</td>
+                                            <td>8</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+
+                                <!-- 分页 -->
+                                <div class="pagination">
+                                    <div class="pagination-info">共 100 条记录，当前显示第 1-5 条</div>
+                                    <div class="pagination-controls">
+                                        <button class="btn btn-sm btn-default" onclick="prevPage('stats')">上一页</button>
+                                        <button class="btn btn-sm btn-default" onclick="nextPage('stats')">下一页</button>
+                                        <span style="margin-left: 16px; color: #666;">每页显示</span>
+                                        <select class="page-size-select" onchange="changePageSize('stats', this.value)">
+                                            <option value="10">10条</option>
+                                            <option value="20">20条</option>
+                                            <option value="50">50条</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="../js/script.js"></script>
+    <script>
+        // Tab切换
+        function switchTab(tabName) {
+            // 隐藏所有tab内容
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // 移除所有tab header的active状态
+            document.querySelectorAll('.tab-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            
+            // 显示选中的tab
+            document.getElementById(tabName + '-tab').classList.add('active');
+            
+            // 激活对应的tab header
+            document.querySelector(`[onclick="switchTab('${tabName}')"]`).classList.add('active');
+        }
+
+        // 渠道用户查询
+        function queryChannelUsers() {
+            const channel = document.getElementById('channel-filter-users').value;
+            const startDate = document.getElementById('start-date-users').value;
+            const endDate = document.getElementById('end-date-users').value;
+            
+            console.log('查询渠道用户:', { channel, startDate, endDate });
+            alert('查询功能开发中...');
+        }
+
+        // 重置渠道用户筛选
+        function resetChannelUsersFilter() {
+            document.getElementById('channel-filter-users').value = 'all';
+            document.getElementById('start-date-users').value = '2024-01-01';
+            document.getElementById('end-date-users').value = '2024-01-15';
+        }
+
+        // 查看用户详情
+        function viewUserDetail(userId) {
+            console.log('查看用户详情:', userId);
+            alert('查看用户详情功能开发中...');
+        }
+
+        // 上一页
+        function prevPage(type) {
+            console.log('上一页:', type);
+        }
+
+        // 下一页
+        function nextPage(type) {
+            console.log('下一页:', type);
+        }
+
+        // 改变每页显示条数
+        function changePageSize(type, size) {
+            console.log('改变每页显示条数:', type, size);
+        }
+
+        // 显示列设置
+        function showColumnSettings(type) {
+            console.log('显示列设置:', type);
+            alert('列设置功能开发中...');
+        }
+
+        // 切换多选下拉框
+        function toggleMultiselect(name) {
+            const options = document.getElementById(name + '-options');
+            options.classList.toggle('show');
+        }
+
+        // 切换渠道选择
+        function toggleChannelSelect(channel) {
+            const allCheckbox = document.getElementById('channel-all');
+            const display = document.getElementById('channels-display');
+            
+            if (channel === 'all') {
+                // 全选/全不选
+                const isChecked = allCheckbox.checked;
+                document.querySelectorAll('#channels-options input[type="checkbox"]').forEach(checkbox => {
+                    checkbox.checked = isChecked;
+                });
+                display.textContent = '全渠道';
+            } else {
+                // 单独选择
+                allCheckbox.checked = false;
+                
+                // 更新显示文本
+                const selectedChannels = [];
+                document.querySelectorAll('#channels-options input[type="checkbox"]:not(#channel-all):checked').forEach(checkbox => {
+                    const label = checkbox.nextElementSibling.textContent;
+                    selectedChannels.push(label);
+                });
+                
+                if (selectedChannels.length === 0) {
+                    display.textContent = '全渠道';
+                    allCheckbox.checked = true;
+                } else if (selectedChannels.length <= 3) {
+                    display.textContent = selectedChannels.join(', ');
+                } else {
+                    display.textContent = `${selectedChannels.length}个渠道已选择`;
+                }
+            }
+        }
+
+        // 渠道统计查询
+        function queryChannelStats() {
+            const startDate = document.getElementById('start-date-stats').value;
+            const endDate = document.getElementById('end-date-stats').value;
+            
+            console.log('查询渠道统计:', { startDate, endDate });
+            alert('查询功能开发中...');
+        }
+
+        // 重置渠道统计筛选
+        function resetChannelStatsFilter() {
+            document.getElementById('start-date-stats').value = '2024-01-01';
+            document.getElementById('end-date-stats').value = '2024-01-15';
+            
+            // 重置渠道选择
+            document.querySelectorAll('#channels-options input[type="checkbox"]').forEach(checkbox => {
+                checkbox.checked = false;
+            });
+            document.getElementById('channel-all').checked = true;
+            document.getElementById('channels-display').textContent = '全渠道';
+        }
+
+        // 导出渠道统计
+        function exportChannelStats() {
+            console.log('导出渠道统计');
+            alert('导出功能开发中...');
+        }
+
+        // 数据钻取
+        function drillDownStats(date, channel) {
+            console.log('数据钻取:', { date, channel });
+            alert('数据钻取功能开发中...');
+        }
+
+        // 点击其他区域关闭多选下拉框
+        document.addEventListener('click', function(e) {
+            if (!e.target.closest('.multiselect')) {
+                document.querySelectorAll('.multiselect-options').forEach(options => {
+                    options.classList.remove('show');
+                });
+            }
+        });
+    </script>
+</body>
+</html>

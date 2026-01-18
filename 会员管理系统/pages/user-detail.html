@@ -1,0 +1,559 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>会员详情 - 会员商城管理系统</title>
+    <link rel="stylesheet" href="../css/styles.css">
+    <style>
+        /* Ant Design 表单布局样式 - 一行3个字段 */
+        .ant-form {
+            margin-bottom: 0;
+        }
+        
+        .ant-form-item {
+            margin-bottom: 16px;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .ant-form-item-label {
+            padding-bottom: 4px;
+        }
+        
+        .ant-form-item-label > label {
+            color: #666;
+            font-size: 14px;
+            font-weight: 500;
+        }
+        
+        .ant-form-item-control {
+            flex: 1;
+        }
+        
+        .ant-form-item-control-input {
+            display: flex;
+            align-items: center;
+        }
+        
+        .ant-form-item-control-input-content {
+            width: 100%;
+        }
+        
+        /* 3列表单布局 */
+        .ant-form-layout-3-col {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+        }
+        
+        /* 表单字段容器 */
+        .ant-form-field {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .ant-form-field-label {
+            font-size: 14px;
+            color: #666;
+            font-weight: 500;
+            margin-bottom: 4px;
+        }
+        
+        .ant-form-field-value {
+            font-size: 14px;
+            color: #333;
+            padding: 4px 11px;
+            background-color: #fafafa;
+            border: 1px solid #f0f0f0;
+            border-radius: 2px;
+            min-height: 22px;
+            display: flex;
+            align-items: center;
+            word-break: break-all;
+        }
+        
+        /* 响应式设计 */
+        @media (max-width: 1200px) {
+            .ant-form-layout-3-col {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .ant-form-layout-3-col {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        /* 压缩卡片样式 */
+        .compact-card {
+            padding: 12px !important;
+        }
+        
+        .compact-card .card-header {
+            padding: 8px 0 !important;
+            margin-bottom: 8px !important;
+        }
+        
+        .compact-card .card-title {
+            font-size: 16px !important;
+            margin: 0 !important;
+        }
+        
+        .compact-card .card-body {
+            padding: 0 !important;
+        }
+        
+        .compact-id-photo-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            margin-top: 8px;
+        }
+        
+        .compact-id-photo-item {
+            text-align: center;
+            border: 1px solid #e8e8e8;
+            border-radius: 4px;
+            padding: 8px;
+        }
+        
+        .compact-id-photo-label {
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 6px;
+        }
+        
+        .compact-id-photo-placeholder {
+            width: 100%;
+            height: 80px;
+            background-color: #f5f5f5;
+            border: 1px dashed #d9d9d9;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #999;
+            font-size: 12px;
+        }
+        
+        .compact-id-photo-placeholder:hover {
+            background-color: #e6f7ff;
+            border-color: #1890ff;
+            color: #1890ff;
+            cursor: pointer;
+        }
+        
+        .compact-btn-group {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        
+        .compact-btn-group .btn {
+            padding: 6px 12px !important;
+            font-size: 12px !important;
+        }
+        
+        .btn-refund {
+            background-color: #fff;
+            color: #ff4d4f;
+            border: 1px solid #ff4d4f;
+            padding: 4px 8px;
+            font-size: 12px;
+        }
+        
+        .btn-refund:hover {
+            background-color: #fff1f0;
+            border-color: #ff7875;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <aside class="sider">
+            <div class="logo">
+                <h1>会员商城管理</h1>
+            </div>
+            <nav class="menu">
+                <div class="menu-item" onclick="navigateTo('user-management')">
+                    <span>👥</span>
+                    <span>用户会员管理</span>
+                </div>
+                <div class="menu-item" onclick="navigateTo('data-stats')">
+                    <span>📊</span>
+                    <span>业务数据统计</span>
+                </div>
+                <div class="menu-item" onclick="navigateTo('channel-user-management')">
+                    <span>🌐</span>
+                    <span>渠道会员管理</span>
+                </div>
+            </nav>
+        </aside>
+
+        <main class="main">
+            <header class="header">
+                <div class="header-left">
+                    <div class="breadcrumb">会员详情</div>
+                </div>
+                <div class="user-info">
+                    <div class="user-avatar">AD</div>
+                    <span>管理员</span>
+                </div>
+            </header>
+
+            <div class="content">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">会员详情</h3>
+                        <div>
+                            <button class="btn btn-default" onclick="navigateTo('user-management')">返回列表</button>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div style="margin-bottom: 24px;">
+                            <div class="card compact-card" style="margin-bottom: 12px;">
+                                <div class="card-header">
+                                    <h4 class="card-title">基本信息</h4>
+                                </div>
+                                <div class="card-body">
+                                    <div class="ant-form-layout-3-col" style="gap: 24px;">
+                                        <div class="ant-form-field">
+                                            <div class="ant-form-field-label">用户ID</div>
+                                            <div class="ant-form-field-value" id="detail-user-id">10001</div>
+                                        </div>
+                                        <div class="ant-form-field">
+                                            <div class="ant-form-field-label">姓名</div>
+                                            <div class="ant-form-field-value" id="detail-name">张三</div>
+                                        </div>
+                                        <div class="ant-form-field">
+                                            <div class="ant-form-field-label">手机号</div>
+                                            <div class="ant-form-field-value" id="detail-phone">138****1234</div>
+                                        </div>
+                                        <div class="ant-form-field">
+                                            <div class="ant-form-field-label">性别</div>
+                                            <div class="ant-form-field-value" id="detail-gender">男</div>
+                                        </div>
+                                        <div class="ant-form-field">
+                                            <div class="ant-form-field-label">出生日期</div>
+                                            <div class="ant-form-field-value" id="detail-birthdate">1990-01-15</div>
+                                        </div>
+                                        <div class="ant-form-field">
+                                            <div class="ant-form-field-label">邮箱</div>
+                                            <div class="ant-form-field-value" id="detail-email">zhangsan@example.com</div>
+                                        </div>
+                                        <div class="ant-form-field">
+                                            <div class="ant-form-field-label">状态</div>
+                                            <div class="ant-form-field-value" style="color: #1890ff; font-weight: 500;" id="detail-status">使用中</div>
+                                        </div>
+                                        <div class="ant-form-field">
+                                            <div class="ant-form-field-label">信用额度</div>
+                                            <div class="ant-form-field-value" style="font-weight: 500;" id="detail-credit">¥5,000</div>
+                                        </div>
+                                        <div class="ant-form-field">
+                                            <div class="ant-form-field-label">已扣款会员金额</div>
+                                            <div class="ant-form-field-value" id="detail-deduction-amount">¥1,200</div>
+                                        </div>
+                                        <div class="ant-form-field">
+                                            <div class="ant-form-field-label">会员支付次数</div>
+                                            <div class="ant-form-field-value" id="detail-payment-count">6次</div>
+                                        </div>
+                                        <div class="ant-form-field">
+                                            <div class="ant-form-field-label">自动扣款状态</div>
+                                            <div class="ant-form-field-value" id="detail-auto-deduct-status">
+                                                <span class="tag tag-success" style="font-size: 12px; padding: 2px 6px;">已启用</span>
+                                            </div>
+                                        </div>
+                                        <div class="ant-form-field">
+                                            <div class="ant-form-field-label">过期时间</div>
+                                            <div class="ant-form-field-value" id="detail-expire">2024-07-15</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        
+
+                        <div class="card compact-card" style="margin-bottom: 12px;">
+                            <div class="card-header">
+                                <h4 class="card-title">操作功能区</h4>
+                            </div>
+                            <div class="card-body">
+                                <div class="compact-btn-group">
+                                    <button class="btn btn-default" onclick="closeAutoDeduct()">关闭自动扣款</button>
+                                    <button class="btn btn-default">重置信用额度</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="card">
+                            <div class="card-body">
+                                <div class="tabs">
+                                    <div class="tab-item active" onclick="switchTab('member-bill')">会员账单</div>
+                                    <div class="tab-item" onclick="switchTab('withhold-log')">代扣日志</div>
+                                    <div class="tab-item" onclick="switchTab('bank-card')">绑卡信息</div>
+                                    <div class="tab-item" onclick="switchTab('id-card')">证件信息</div>
+                                    <div class="tab-item" onclick="switchTab('credit-change')">额度变更记录</div>
+                                    <div class="tab-item" onclick="switchTab('order-record')">订单记录</div>
+                                </div>
+                                
+                                <div id="member-bill" class="tab-content" style="margin-top: 24px;">
+                                    <table class="table">
+                                        <thead>
+                                            <tr>
+                                                <th>账单ID</th>
+                                                <th>账单日期</th>
+                                                <th>金额</th>
+                                                <th>状态</th>
+                                                <th>支付时间</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td>BD001</td>
+                                                <td>2024-01-15</td>
+                                                <td>¥200</td>
+                                                <td><span class="tag tag-success">已支付</span></td>
+                                                <td>2024-01-15 14:30:00</td>
+                                            </tr>
+                                            <tr>
+                                                <td>BD002</td>
+                                                <td>2024-01-10</td>
+                                                <td>¥300</td>
+                                                <td><span class="tag tag-success">已支付</span></td>
+                                                <td>2024-01-10 10:15:00</td>
+                                            </tr>
+                                            <tr>
+                                                <td>BD003</td>
+                                                <td>2024-01-05</td>
+                                                <td>¥400</td>
+                                                <td><span class="tag tag-success">已支付</span></td>
+                                                <td>2024-01-05 16:45:00</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                                
+                                <div id="withhold-log" class="tab-content" style="display: none; margin-top: 24px;">
+                                    <table class="table">
+                                        <thead>
+                                            <tr>
+                                                <th>日志ID</th>
+                                                <th>代扣时间</th>
+                                                <th>金额</th>
+                                                <th>状态</th>
+                                                <th>银行卡号</th>
+                                                <th>备注</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td>WL001</td>
+                                                <td>2024-01-15 14:30:00</td>
+                                                <td>¥200</td>
+                                                <td><span class="tag tag-success">成功</span></td>
+                                                <td>622848********1234</td>
+                                                <td>会员月度服务费</td>
+                                            </tr>
+                                            <tr>
+                                                <td>WL002</td>
+                                                <td>2024-01-10 10:15:00</td>
+                                                <td>¥300</td>
+                                                <td><span class="tag tag-success">成功</span></td>
+                                                <td>622848********1234</td>
+                                                <td>会员月度服务费</td>
+                                            </tr>
+                                            <tr>
+                                                <td>WL003</td>
+                                                <td>2024-01-05 16:45:00</td>
+                                                <td>¥400</td>
+                                                <td><span class="tag tag-success">成功</span></td>
+                                                <td>622848********1234</td>
+                                                <td>会员月度服务费</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                                
+                                <div id="bank-card" class="tab-content" style="display: none; margin-top: 24px;">
+                                    <div class="detail-info">
+                                        <div class="detail-info-label">银行卡号</div>
+                                        <div class="detail-info-value" id="detail-bankcard">622848********1234</div>
+                                    </div>
+                                    <div class="detail-info">
+                                        <div class="detail-info-label">开户行</div>
+                                        <div class="detail-info-value" id="detail-bankname">中国农业银行</div>
+                                    </div>
+                                    <div class="detail-info">
+                                        <div class="detail-info-label">开户支行</div>
+                                        <div class="detail-info-value" id="detail-bankbranch">北京朝阳支行</div>
+                                    </div>
+                                    <div class="detail-info">
+                                        <div class="detail-info-label">绑定时间</div>
+                                        <div class="detail-info-value" id="detail-bindtime">2024-01-15 14:30:00</div>
+                                    </div>
+                                </div>
+                                <div id="id-card" class="tab-content" style="display: none; margin-top: 24px;">
+                                    <div class="compact-detail-info">
+                                        <div class="compact-detail-info-label">身份证号</div>
+                                        <div class="compact-detail-info-value" id="detail-idcard">110101********1234</div>
+                                    </div>
+                                    <div class="compact-detail-info">
+                                        <div class="compact-detail-info-label">身份证地址</div>
+                                        <div class="compact-detail-info-value" id="detail-idcard-address">北京市朝阳区*********</div>
+                                    </div>
+                                    <div class="compact-detail-info">
+                                        <div class="compact-detail-info-label">身份证有效期</div>
+                                        <div class="compact-detail-info-value" id="detail-idcard-valid">2020-01-01 至 2030-01-01</div>
+                                    </div>
+                                    <div class="compact-id-photo-container">
+                                        <div class="compact-id-photo-item">
+                                            <div class="compact-id-photo-label">身份证正面</div>
+                                            <div class="compact-id-photo-placeholder" onclick="viewIdPhoto('front')">点击查看</div>
+                                        </div>
+                                        <div class="compact-id-photo-item">
+                                            <div class="compact-id-photo-label">身份证背面</div>
+                                            <div class="compact-id-photo-placeholder" onclick="viewIdPhoto('back')">点击查看</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div id="credit-change" class="tab-content" style="display: none; margin-top: 24px;">
+                                    <table class="table">
+                                        <thead>
+                                            <tr>
+                                                <th>变更ID</th>
+                                                <th>变更时间</th>
+                                                <th>变更前额度</th>
+                                                <th>变更后额度</th>
+                                                <th>变更类型</th>
+                                                <th>变更原因</th>
+                                                <th>操作人</th>
+                                                <th>备注</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td>CC001</td>
+                                                <td>2024-01-15 10:00:00</td>
+                                                <td>¥3,000</td>
+                                                <td>¥5,000</td>
+                                                <td><span class="tag tag-success">提升</span></td>
+                                                <td>优质客户额度提升</td>
+                                                <td>系统自动</td>
+                                                <td>月度评分优秀</td>
+                                            </tr>
+                                            <tr>
+                                                <td>CC002</td>
+                                                <td>2024-01-10 14:30:00</td>
+                                                <td>¥2,000</td>
+                                                <td>¥3,000</td>
+                                                <td><span class="tag tag-success">提升</span></td>
+                                                <td>会员等级升级</td>
+                                                <td>admin</td>
+                                                <td>开通VIP会员</td>
+                                            </tr>
+                                            <tr>
+                                                <td>CC003</td>
+                                                <td>2024-01-05 09:15:00</td>
+                                                <td>¥0</td>
+                                                <td>¥2,000</td>
+                                                <td><span class="tag tag-success">初始授予</span></td>
+                                                <td>新用户注册</td>
+                                                <td>系统自动</td>
+                                                <td>首次注册授信</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                                
+                                <div id="order-record" class="tab-content" style="display: none; margin-top: 24px;">
+                                    <table class="table">
+                                        <thead>
+                                            <tr>
+                                                <th>订单ID</th>
+                                                <th>订单类型</th>
+                                                <th>订单金额</th>
+                                                <th>订单状态</th>
+                                                <th>创建时间</th>
+                                                <th>支付时间</th>
+                                                <th>完成时间</th>
+                                                <th>操作</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td>OD001</td>
+                                                <td><span class="tag tag-success">会员开通</span></td>
+                                                <td>¥299</td>
+                                                <td><span class="tag tag-success">已完成</span></td>
+                                                <td>2024-01-15 10:00:00</td>
+                                                <td>2024-01-15 10:05:00</td>
+                                                <td>2024-01-15 10:05:30</td>
+                                                <td>
+                                                    <button class="btn btn-text" style="color: #1890ff;" onclick="viewOrderDetail('OD001')">查看详情</button>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>OD002</td>
+                                                <td><span class="tag tag-processing">额度借款</span></td>
+                                                <td>¥1,000</td>
+                                                <td><span class="tag tag-success">已完成</span></td>
+                                                <td>2024-01-14 14:30:00</td>
+                                                <td>2024-01-14 14:35:00</td>
+                                                <td>2024-01-14 14:35:30</td>
+                                                <td>
+                                                    <button class="btn btn-text" style="color: #1890ff;" onclick="viewOrderDetail('OD002')">查看详情</button>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>OD003</td>
+                                                <td><span class="tag tag-warning">商品购买</span></td>
+                                                <td>¥599</td>
+                                                <td><span class="tag tag-success">已完成</span></td>
+                                                <td>2024-01-13 09:15:00</td>
+                                                <td>2024-01-13 09:20:00</td>
+                                                <td>2024-01-13 09:20:30</td>
+                                                <td>
+                                                    <button class="btn btn-text" style="color: #1890ff;" onclick="viewOrderDetail('OD003')">查看详情</button>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="../js/script.js"></script>
+    <script>
+        window.onload = function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const userId = urlParams.get('id');
+            if (userId) {
+                loadUserDetail(userId);
+            }
+        };
+        
+        function viewIdPhoto(type) {
+            alert('查看身份证' + (type === 'front' ? '正面' : '背面') + '照片');
+        }
+        
+        function viewBillDetail(billId) {
+            alert('查看账单详情：' + billId);
+        }
+        
+        function refundBill(billId) {
+            if (confirm('确定要退款账单 ' + billId + ' 吗？')) {
+                alert('账单 ' + billId + ' 退款申请已提交，等待处理');
+            }
+        }
+    </script>
+</body>
+</html>

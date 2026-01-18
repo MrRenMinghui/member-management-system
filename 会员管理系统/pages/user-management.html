@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>用户会员管理 - 会员商城管理系统</title>
+    <link rel="stylesheet" href="../css/styles.css">
+</head>
+<body>
+    <div class="container">
+        <aside class="sider">
+            <div class="logo">
+                <h1>会员商城管理</h1>
+            </div>
+            <nav class="menu">
+                <div class="menu-item active" onclick="navigateTo('user-management')">
+                    <span>👥</span>
+                    <span>用户会员管理</span>
+                </div>
+                <div class="menu-item" onclick="navigateTo('data-stats')">
+                    <span>📊</span>
+                    <span>业务数据统计</span>
+                </div>
+                <div class="menu-item" onclick="navigateTo('channel-user-management')">
+                    <span>🌐</span>
+                    <span>渠道会员管理</span>
+                </div>
+            </nav>
+        </aside>
+
+        <main class="main">
+            <header class="header">
+                <div class="header-left">
+                    <div class="breadcrumb">用户会员管理</div>
+                </div>
+                <div class="user-info">
+                    <div class="user-avatar">AD</div>
+                    <span>管理员</span>
+                </div>
+            </header>
+
+            <div class="content">
+                <div class="stats-section" id="stats-section">
+                    <div class="stats-loading" id="stats-loading">
+                        <div style="display: flex; align-items: center; justify-content: center; height: 120px;">
+                            <div style="width: 24px; height: 24px; border: 3px solid #f3f3f3; border-top: 3px solid #1890ff; border-radius: 50%; animation: spin 1s linear infinite;"></div>
+                            <span style="margin-left: 12px; color: #666;">加载中...</span>
+                        </div>
+                    </div>
+                    <div class="stats-grid" id="stats-grid" style="display: none;">
+                        <div class="stat-card">
+                            <div class="stat-label">当前总权益会员数</div>
+                            <div class="stat-value" id="total-members">1,256</div>
+                            <div class="stat-change" id="total-members-change">
+                                <span class="change-arrow" id="total-members-arrow">↑</span>
+                                <span class="change-percent" id="total-members-percent">12.5%</span>
+                                <span class="change-value" id="total-members-value">+142</span>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">今日已签署会员数</div>
+                            <div class="stat-value" id="today-signed">23</div>
+                            <div class="stat-change" id="today-signed-change">
+                                <span class="change-arrow" id="today-signed-arrow">↑</span>
+                                <span class="change-percent" id="today-signed-percent">8.2%</span>
+                                <span class="change-value" id="today-signed-value">+2</span>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">今日已扣费会员数</div>
+                            <div class="stat-value" id="today-deducted">45</div>
+                            <div class="stat-change" id="today-deducted-change">
+                                <span class="change-arrow" id="today-deducted-arrow">↓</span>
+                                <span class="change-percent" id="today-deducted-percent">5.3%</span>
+                                <span class="change-value" id="today-deducted-value">-3</span>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">今日已扣款金额</div>
+                            <div class="stat-value" id="today-amount">¥12,560</div>
+                            <div class="stat-change" id="today-amount-change">
+                                <span class="change-arrow" id="today-amount-arrow">↑</span>
+                                <span class="change-percent" id="today-amount-percent">15.3%</span>
+                                <span class="change-value" id="today-amount-value">+¥1,680</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="stats-error" id="stats-error" style="display: none;">
+                        <div style="display: flex; align-items: center; justify-content: center; height: 120px; color: #ff4d4f;">
+                            <span>数据加载失败，请刷新页面重试</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">会员列表</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="filter-section" style="margin-bottom: 24px; padding: 16px; background-color: #fafafa; border-radius: 4px;">
+                            <div class="filter-row" style="display: grid; grid-template-columns: repeat(6, 1fr); gap: 16px; margin-bottom: 16px;">
+                                <style>
+                                    @media (max-width: 1200px) {
+                                        .filter-row {
+                                            grid-template-columns: repeat(3, 1fr) !important;
+                                        }
+                                    }
+                                    @media (max-width: 768px) {
+                                        .filter-row {
+                                            grid-template-columns: repeat(2, 1fr) !important;
+                                        }
+                                    }
+                                    @media (max-width: 480px) {
+                                        .filter-row {
+                                            grid-template-columns: 1fr !important;
+                                        }
+                                    }
+                                </style>
+                                <div>
+                                    <label style="font-size: 14px; color: #666; margin-bottom: 8px; display: block;">搜索</label>
+                                    <input type="text" class="input" id="filter-search" placeholder="请输入姓名、身份证号或手机号" oninput="applyFilter()">
+                                </div>
+                                <div>
+                                    <label style="font-size: 14px; color: #666; margin-bottom: 8px; display: block;">渠道</label>
+                                    <select class="input" id="filter-channel" onchange="applyFilter()">
+                                        <option value="">全部渠道</option>
+                                        <option value="渠道A">渠道A</option>
+                                        <option value="渠道B">渠道B</option>
+                                        <option value="渠道C">渠道C</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label style="font-size: 14px; color: #666; margin-bottom: 8px; display: block;">状态</label>
+                                    <select class="input" id="filter-status" onchange="applyFilter()">
+                                        <option value="">全部状态</option>
+                                        <option value="使用中">使用中</option>
+                                        <option value="已过期">已过期</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label style="font-size: 14px; color: #666; margin-bottom: 8px; display: block;">自动扣款状态</label>
+                                    <select class="input" id="filter-auto-deduct" onchange="applyFilter()">
+                                        <option value="">全部状态</option>
+                                        <option value="已启用">已启用</option>
+                                        <option value="已禁用">已禁用</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="filter-actions" style="display: flex; gap: 12px;">
+                                <button class="btn btn-primary" onclick="applyFilter()">筛选</button>
+                                <button class="btn btn-default" onclick="resetFilter()">重置</button>
+                            </div>
+                        </div>
+                    <div class="card-body">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>用户ID</th>
+                                    <th>姓名</th>
+                                    <th>手机号</th>
+                                    <th>渠道</th>
+                                    <th>状态</th>
+                                    <th>已扣款会员金额</th>
+                                    <th>会员支付次数</th>
+                                    <th>最近消费时间</th>
+                                    <th>信用额度</th>
+                                    <th>自动扣款状态</th>
+                                    <th>备注</th>
+                                    <th>操作</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>10001</td>
+                                    <td>张三</td>
+                                    <td>138****1234</td>
+                                    <td><span class="tag tag-success">渠道A</span></td>
+                                    <td><span class="tag tag-success">使用中</span></td>
+                                    <td>¥1,200</td>
+                                    <td>6</td>
+                                    <td>2024-01-15</td>
+                                    <td>¥5,000</td>
+                                    <td><span class="tag tag-success">已启用</span></td>
+                                    <td>
+                                        <div class="remark-content" id="remark-10001">VIP用户，活跃度高</div>
+                                        <div class="remark-edit" style="display: none;">
+                                            <input type="text" class="input" id="remark-input-10001" value="VIP用户，活跃度高" />
+                                            <button class="btn btn-primary" onclick="saveRemark(10001)">保存</button>
+                                            <button class="btn btn-default" onclick="cancelRemark(10001)">取消</button>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <button class="btn btn-text" style="color: #1890ff;" onclick="showUserDetail(10001)">详情</button>
+                                        <button class="btn btn-text" style="color: #1890ff;" onclick="editRemark(10001)">编辑备注</button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>10002</td>
+                                    <td>李四</td>
+                                    <td>139****5678</td>
+                                    <td><span class="tag tag-success">渠道B</span></td>
+                                    <td><span class="tag tag-error">已过期</span></td>
+                                    <td>¥800</td>
+                                    <td>4</td>
+                                    <td>2024-01-14</td>
+                                    <td>¥3,000</td>
+                                    <td><span class="tag tag-error">已禁用</span></td>
+                                    <td>
+                                        <div class="remark-content" id="remark-10002">普通用户</div>
+                                        <div class="remark-edit" style="display: none;">
+                                            <input type="text" class="input" id="remark-input-10002" value="普通用户" />
+                                            <button class="btn btn-primary" onclick="saveRemark(10002)">保存</button>
+                                            <button class="btn btn-default" onclick="cancelRemark(10002)">取消</button>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <button class="btn btn-text" style="color: #1890ff;" onclick="showUserDetail(10002)">详情</button>
+                                        <button class="btn btn-text" style="color: #1890ff;" onclick="editRemark(10002)">编辑备注</button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>10003</td>
+                                    <td>王五</td>
+                                    <td>137****9012</td>
+                                    <td><span class="tag tag-processing">渠道C</span></td>
+                                    <td><span class="tag tag-success">使用中</span></td>
+                                    <td>¥2,000</td>
+                                    <td>10</td>
+                                    <td>2024-01-13</td>
+                                    <td>¥8,000</td>
+                                    <td><span class="tag tag-success">已启用</span></td>
+                                    <td>
+                                        <div class="remark-content" id="remark-10003">优质客户，推荐升级</div>
+                                        <div class="remark-edit" style="display: none;">
+                                            <input type="text" class="input" id="remark-input-10003" value="优质客户，推荐升级" />
+                                            <button class="btn btn-primary" onclick="saveRemark(10003)">保存</button>
+                                            <button class="btn btn-default" onclick="cancelRemark(10003)">取消</button>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <button class="btn btn-text" style="color: #1890ff;" onclick="showUserDetail(10003)">详情</button>
+                                        <button class="btn btn-text" style="color: #1890ff;" onclick="editRemark(10003)">编辑备注</button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>10004</td>
+                                    <td>赵六</td>
+                                    <td>136****3456</td>
+                                    <td><span class="tag tag-processing">渠道C</span></td>
+                                    <td><span class="tag tag-error">已过期</span></td>
+                                    <td>¥600</td>
+                                    <td>2</td>
+                                    <td>2023-11-12</td>
+                                    <td>¥2,000</td>
+                                    <td><span class="tag tag-error">已禁用</span></td>
+                                    <td>
+                                        <div class="remark-content" id="remark-10004">普通用户，活跃度一般</div>
+                                        <div class="remark-edit" style="display: none;">
+                                            <input type="text" class="input" id="remark-input-10004" value="普通用户，活跃度一般" />
+                                            <button class="btn btn-primary" onclick="saveRemark(10004)">保存</button>
+                                            <button class="btn btn-default" onclick="cancelRemark(10004)">取消</button>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <button class="btn btn-text" style="color: #1890ff;" onclick="showUserDetail(10004)">详情</button>
+                                        <button class="btn btn-text" style="color: #1890ff;" onclick="editRemark(10004)">编辑备注</button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                        <div class="pagination">
+                            <div class="pagination-item">‹</div>
+                            <div class="pagination-item active">1</div>
+                            <div class="pagination-item">2</div>
+                            <div class="pagination-item">3</div>
+                            <div class="pagination-item">›</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="../js/script.js"></script>
+    <script>
+        // 会员数据
+        const membersData = [
+            { id: 10001, name: '张三', phone: '138****1234', channel: '渠道A', status: '使用中', deductionAmount: '¥1,200', paymentCount: 6, lastConsume: '2024-01-15', credit: '¥5,000', autoDeduct: '已启用', remark: 'VIP用户，活跃度高', idcard: '110101********1234' },
+            { id: 10002, name: '李四', phone: '139****5678', channel: '渠道B', status: '已过期', deductionAmount: '¥800', paymentCount: 4, lastConsume: '2024-01-14', credit: '¥3,000', autoDeduct: '已禁用', remark: '普通用户', idcard: '110102********5678' },
+            { id: 10003, name: '王五', phone: '137****9012', channel: '渠道C', status: '使用中', deductionAmount: '¥2,000', paymentCount: 10, lastConsume: '2024-01-13', credit: '¥8,000', autoDeduct: '已启用', remark: '优质客户，推荐升级', idcard: '110103********9012' },
+            { id: 10004, name: '赵六', phone: '136****3456', channel: '渠道C', status: '已过期', deductionAmount: '¥600', paymentCount: 2, lastConsume: '2023-11-12', credit: '¥2,000', autoDeduct: '已禁用', remark: '普通用户，活跃度一般', idcard: '110104********3456' }
+        ];
+
+        // 应用筛选
+        function applyFilter() {
+            const search = document.getElementById('filter-search').value.toLowerCase();
+            const channel = document.getElementById('filter-channel').value;
+            const status = document.getElementById('filter-status').value;
+            const autoDeduct = document.getElementById('filter-auto-deduct').value;
+
+            const rows = document.querySelectorAll('table tbody tr');
+            let visibleCount = 0;
+
+            rows.forEach((row, index) => {
+                const member = membersData[index];
+                if (!member) return;
+
+                const matchSearch = !search || 
+                    member.name.toLowerCase().includes(search) || 
+                    member.idcard.toLowerCase().includes(search) || 
+                    member.phone.toLowerCase().includes(search);
+                const matchChannel = !channel || member.channel === channel;
+                const matchStatus = !status || member.status === status;
+                const matchAutoDeduct = !autoDeduct || member.autoDeduct === autoDeduct;
+
+                if (matchSearch && matchChannel && matchStatus && matchAutoDeduct) {
+                    row.style.display = '';
+                    visibleCount++;
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+
+            // 更新分页信息
+            const pagination = document.querySelector('.pagination');
+            if (pagination) {
+                if (visibleCount === 0) {
+                    pagination.innerHTML = '<div style="padding: 24px; text-align: center; color: #999;">暂无符合条件的会员</div>';
+                }
+            }
+        }
+
+        // 重置筛选
+        function resetFilter() {
+            document.getElementById('filter-search').value = '';
+            document.getElementById('filter-channel').value = '';
+            document.getElementById('filter-status').value = '';
+            document.getElementById('filter-auto-deduct').value = '';
+
+            applyFilter();
+        }
+
+        // 页面加载完成后初始化
+        window.onload = function() {
+            applyFilter();
+        };
+    </script>
+</body>
+</html>

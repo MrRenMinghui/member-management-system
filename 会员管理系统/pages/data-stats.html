@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>业务数据统计 - 会员商城管理系统</title>
+    <link rel="stylesheet" href="../css/styles.css">
+    <style>
+        /* 悬停提示样式 */
+        .tooltip {
+            position: relative;
+            display: inline-block;
+            cursor: help;
+            font-weight: bold;
+            color: #999;
+            font-size: 12px;
+        }
+
+        .tooltip::before {
+            content: "?";
+        }
+
+        .tooltip .tooltiptext {
+            visibility: hidden;
+            width: 200px;
+            background-color: #333;
+            color: #fff;
+            text-align: center;
+            border-radius: 4px;
+            padding: 8px;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            margin-left: -100px;
+            opacity: 0;
+            transition: opacity 0.3s;
+            font-size: 12px;
+            line-height: 1.4;
+        }
+
+        .tooltip:hover .tooltiptext {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        .tooltip .tooltiptext::after {
+            content: "";
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            margin-left: -5px;
+            border-width: 5px;
+            border-style: solid;
+            border-color: #333 transparent transparent transparent;
+        }
+
+        /* 筛选栏样式 */
+        .filter-bar {
+            display: flex;
+            gap: 16px;
+            align-items: center;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+        }
+
+        .filter-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .filter-item label {
+            font-size: 14px;
+            color: #666;
+            font-weight: 500;
+        }
+
+        .filter-input {
+            padding: 6px 12px;
+            border: 1px solid #d9d9d9;
+            border-radius: 4px;
+            font-size: 14px;
+            min-width: 150px;
+        }
+
+        .filter-input:focus {
+            outline: none;
+            border-color: #1890ff;
+            box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.2);
+        }
+
+        /* 统计卡片样式 */
+        .stats-cards {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .stat-card {
+            background: #fff;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        }
+
+        .stat-card .stat-label {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 8px;
+        }
+
+        .stat-card .stat-value {
+            font-size: 28px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .stat-card .stat-change {
+            font-size: 12px;
+            margin-top: 8px;
+        }
+
+        .stat-card .stat-change.positive {
+            color: #52c41a;
+        }
+
+        .stat-card .stat-change.negative {
+            color: #ff4d4f;
+        }
+
+        /* 表格样式优化 */
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: #fff;
+        }
+
+        .data-table th,
+        .data-table td {
+            padding: 12px 16px;
+            text-align: left;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .data-table th {
+            background: #fafafa;
+            font-weight: 600;
+            color: #333;
+            white-space: nowrap;
+        }
+
+        .data-table tbody tr:hover {
+            background: #f5f5f5;
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 1200px) {
+            .stats-cards {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .stats-cards {
+                grid-template-columns: 1fr;
+            }
+
+            .filter-bar {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .filter-item {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .filter-input {
+                width: 100%;
+            }
+
+            .data-table {
+                display: block;
+                overflow-x: auto;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <aside class="sider">
+            <div class="logo">
+                <h1>会员商城管理</h1>
+            </div>
+            <nav class="menu">
+                <div class="menu-item" onclick="navigateTo('user-management')">
+                    <span>👥</span>
+                    <span>用户会员管理</span>
+                </div>
+                <div class="menu-item active" onclick="navigateTo('data-stats')">
+                    <span>📊</span>
+                    <span>业务数据统计</span>
+                </div>
+                <div class="menu-item" onclick="navigateTo('channel-user-management')">
+                    <span>🌐</span>
+                    <span>渠道会员管理</span>
+                </div>
+            </nav>
+        </aside>
+
+        <main class="main">
+            <header class="header">
+                <div class="header-left">
+                    <div class="breadcrumb">业务数据统计</div>
+                </div>
+                <div class="user-info">
+                    <div class="user-avatar">AD</div>
+                    <span>管理员</span>
+                </div>
+            </header>
+
+            <div class="content">
+                <!-- 筛选栏 -->
+                <div class="card" style="margin-bottom: 24px;">
+                    <div class="card-body">
+                        <div class="filter-bar">
+                            <div class="filter-item">
+                                <label>渠道筛选</label>
+                                <select id="channel-filter" class="filter-input">
+                                    <option value="all">全渠道</option>
+                                    <option value="official">官方网站</option>
+                                    <option value="wechat">微信公众号</option>
+                                    <option value="app">移动端APP</option>
+                                    <option value="h5">H5页面</option>
+                                </select>
+                            </div>
+                            <div class="filter-item">
+                                <label>日期范围</label>
+                                <input type="date" id="start-date" class="filter-input" value="2024-01-11">
+                                <span style="color: #999;">至</span>
+                                <input type="date" id="end-date" class="filter-input" value="2024-01-15">
+                            </div>
+                            <div class="filter-item">
+                                <button class="btn btn-primary" onclick="applyFilter()">应用筛选</button>
+                                <button class="btn btn-default" onclick="resetFilter()">重置</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 顶部统计卡片 -->
+                <div class="stats-cards">
+                    <div class="stat-card">
+                        <div class="stat-label">总实名用户量</div>
+                        <div class="stat-value">2,568</div>
+                        <div class="stat-change positive">↑ 18.5% 较上月</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">总权益绑定用户量</div>
+                        <div class="stat-value">1,892</div>
+                        <div class="stat-change positive">↑ 15.2% 较上月</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">当前权益会员用户量</div>
+                        <div class="stat-value">1,256</div>
+                        <div class="stat-change positive">↑ 12.8% 较上月</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">总会员扣费金额</div>
+                        <div class="stat-value">¥12,568,923</div>
+                        <div class="stat-change positive">↑ 22.3% 较上月</div>
+                    </div>
+                </div>
+
+                <!-- 数据表格 -->
+                <div class="card">
+                    <div class="card-body">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>日期</th>
+                                    <th>
+                                        pv
+                                        <span class="tooltip">
+                                            <span class="tooltiptext">页面访问量：统计周期内页面被访问的总次数，同一用户多次访问同一页面会被多次统计</span>
+                                        </span>
+                                    </th>
+                                    <th>
+                                        uv
+                                        <span class="tooltip">
+                                            <span class="tooltiptext">独立访客数：统计周期内访问网站的独立用户数量，同一用户多次访问只计为1次</span>
+                                        </span>
+                                    </th>
+                                    <th>
+                                        av
+                                        <span class="tooltip">
+                                            <span class="tooltiptext">平均访问时长：统计周期内所有用户访问时长的平均值</span>
+                                        </span>
+                                    </th>
+                                    <th>
+                                        实名
+                                        <span class="tooltip">
+                                            <span class="tooltiptext">实名认证用户数：统计周期内新完成实名认证的用户数</span>
+                                        </span>
+                                    </th>
+                                    <th>
+                                        帮卡
+                                        <span class="tooltip">
+                                            <span class="tooltiptext">绑卡用户数：统计周期内新绑定银行卡的用户数</span>
+                                        </span>
+                                    </th>
+                                    <th>
+                                        开通会员
+                                        <span class="tooltip">
+                                            <span class="tooltiptext">新增会员开通数：统计周期内新购买会员服务的用户数</span>
+                                        </span>
+                                    </th>
+                                    <th>
+                                        额度下单
+                                        <span class="tooltip">
+                                            <span class="tooltiptext">额度类产品下单量：使用额度支付的订单总数</span>
+                                        </span>
+                                    </th>
+                                    <th>
+                                        当日会员扣费
+                                        <span class="tooltip">
+                                            <span class="tooltiptext">当日会员服务扣费总金额：当日会员服务自动扣费的总金额</span>
+                                        </span>
+                                    </th>
+                                    <th>
+                                        历史会员扣费
+                                        <span class="tooltip">
+                                            <span class="tooltiptext">历史累计会员服务扣费总金额：截至统计周期结束，所有会员服务累计扣费总金额</span>
+                                        </span>
+                                    </th>
+                                    <th>
+                                        总扣费金额
+                                        <span class="tooltip">
+                                            <span class="tooltiptext">所有服务类型累计扣费总金额：平台所有服务类型累计扣费总金额</span>
+                                        </span>
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>2024-01-15</td>
+                                    <td>12,568</td>
+                                    <td>3,421</td>
+                                    <td>3分25秒</td>
+                                    <td>568</td>
+                                    <td>432</td>
+                                    <td>156</td>
+                                    <td>892</td>
+                                    <td>¥12,568</td>
+                                    <td>¥1,256,345</td>
+                                    <td>¥2,568,923</td>
+                                </tr>
+                                <tr>
+                                    <td>2024-01-14</td>
+                                    <td>10,912</td>
+                                    <td>3,034</td>
+                                    <td>3分12秒</td>
+                                    <td>462</td>
+                                    <td>364</td>
+                                    <td>118</td>
+                                    <td>695</td>
+                                    <td>¥10,876</td>
+                                    <td>¥1,243,777</td>
+                                    <td>¥2,556,355</td>
+                                </tr>
+                                <tr>
+                                    <td>2024-01-13</td>
+                                    <td>11,256</td>
+                                    <td>3,189</td>
+                                    <td>3分18秒</td>
+                                    <td>485</td>
+                                    <td>382</td>
+                                    <td>125</td>
+                                    <td>723</td>
+                                    <td>¥11,234</td>
+                                    <td>¥1,232,901</td>
+                                    <td>¥2,545,479</td>
+                                </tr>
+                                <tr>
+                                    <td>2024-01-12</td>
+                                    <td>9,876</td>
+                                    <td>2,756</td>
+                                    <td>3分05秒</td>
+                                    <td>412</td>
+                                    <td>328</td>
+                                    <td>105</td>
+                                    <td>628</td>
+                                    <td>¥9,876</td>
+                                    <td>¥1,221,667</td>
+                                    <td>¥2,535,603</td>
+                                </tr>
+                                <tr>
+                                    <td>2024-01-11</td>
+                                    <td>10,543</td>
+                                    <td>2,987</td>
+                                    <td>3分10秒</td>
+                                    <td>445</td>
+                                    <td>356</td>
+                                    <td>112</td>
+                                    <td>685</td>
+                                    <td>¥10,543</td>
+                                    <td>¥1,211,791</td>
+                                    <td>¥2,525,727</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="../js/script.js"></script>
+    <script>
+        // 应用筛选
+        function applyFilter() {
+            const channel = document.getElementById('channel-filter').value;
+            const startDate = document.getElementById('start-date').value;
+            const endDate = document.getElementById('end-date').value;
+            
+            console.log('应用筛选:', { channel, startDate, endDate });
+            alert('筛选功能开发中...');
+        }
+
+        // 重置筛选
+        function resetFilter() {
+            document.getElementById('channel-filter').value = 'all';
+            document.getElementById('start-date').value = '2024-01-11';
+            document.getElementById('end-date').value = '2024-01-15';
+            
+            console.log('重置筛选');
+        }
+    </script>
+</body>
+</html>
